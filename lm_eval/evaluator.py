@@ -388,6 +388,8 @@ def evaluate(
 
         # run requests through model
         resps = getattr(lm, reqtype)(cloned_reqs)
+        if lm.model.config.record_weight_wise_activation:
+            lm.model.prune_metadata.print()
 
         # put responses from model into a list of length K for each request.
         for x, req in zip(resps, cloned_reqs):
