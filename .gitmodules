@@ -1,0 +1,3 @@
+[submodule "transformers"]
+	path = transformers
+	url = git@ipads.se.sjtu.edu.cn:ipads-storage/codebase/modelbase/transformers.git
