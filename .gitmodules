@@ -1,3 +1,4 @@
 [submodule "transformers"]
 	path = transformers
 	url = https://github.com/huangwei021230/transformers.git
+	branch = main
