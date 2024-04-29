@@ -365,7 +365,7 @@ def evaluate(
             # "multiple_choice" task types dispatch (several) "loglikelihood" request types
             reqtype = (
                 "loglikelihood"
-                if task.OUTPUT_TYPE == "multiple_choice"
+                if task.OUTPUT_TYPE == "multiple_choice"    
                 else task.OUTPUT_TYPE
             )
             # compute number of pseudo-batches to pad with (FSDP/DDP require even batches among ranks)
@@ -388,6 +388,10 @@ def evaluate(
 
         # run requests through model
         resps = getattr(lm, reqtype)(cloned_reqs)
+        
+        # save weight-wise activation statistics
+        if lm.model.config.record_weight_wise_activation:
+            lm.model.prune_metadata.calculate_avg_activation_matrix()
 
         # put responses from model into a list of length K for each request.
         for x, req in zip(resps, cloned_reqs):
