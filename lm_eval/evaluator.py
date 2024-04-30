@@ -391,7 +391,8 @@ def evaluate(
         
         # save weight-wise activation statistics
         if lm.model.config.record_weight_wise_activation:
-            lm.model.prune_metadata.calculate_avg_activation_matrix()
+            lm.model.prune_metadata.print()
+            lm.model.prune_metadata.save(lm.model.config.output_path)
 
         # put responses from model into a list of length K for each request.
         for x, req in zip(resps, cloned_reqs):
