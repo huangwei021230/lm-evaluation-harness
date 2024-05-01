@@ -372,6 +372,15 @@ def evaluate(
             numpad = max(gathered_item) - gathered_item[lm.rank]
             # todo: may not account for padding in cases like SquadV2 which has multiple req types
             padding_requests[reqtype] += numpad
+    
+    # Record the weight activation via layer instrumentation
+    # Or prune the layer weights based on recorded weight activation
+    if lm.model.config.enable_weight_activation_based_pruning or\
+        lm.model.config.record_weight_wise_activation:
+        assert lm.model.prune_metadata != None
+        if lm.model.prune_metadata.layers is None:
+            raise RuntimeError("Layers to instrument is not set properly")
+        lm.model.prune_metadata.instrument_layers(lm.model.prune_metadata.layers)
 
     ### Run LM on inputs, get all outputs ###
     # execute each type of request
@@ -389,7 +398,9 @@ def evaluate(
         # run requests through model
         resps = getattr(lm, reqtype)(cloned_reqs)
         if lm.model.config.record_weight_wise_activation:
-            lm.model.prune_metadata.print()
+            if lm.model.config.enable_weight_activation_based_pruning:
+                raise RuntimeError("Invalid argument! `record_weight_wise_activation` and `enable_weight_activation_based_pruning` should not be True at the same time.")
+        lm.model.prune_metadata.print_statistics()
 
         # put responses from model into a list of length K for each request.
         for x, req in zip(resps, cloned_reqs):
